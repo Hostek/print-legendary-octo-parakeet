@@ -225,11 +225,22 @@ def main():
         help="List all available languages inside the './lang' directory and exit.",
     )
 
+    parser.add_argument(
+        "--seed",
+        type=str,
+        default=None,
+        help="Optional seed for the random number generator to ensure reproducible card generation.",
+    )
+
     args = parser.parse_args()
 
     if args.lang_list:
         list_languages()
         sys.exit(0)
+
+    if args.seed is not None:
+        random.seed(args.seed)
+        print(f"RNG seed set to: '{args.seed}'")
 
     lang_config = load_lang_config(args.lang)
     translations = lang_config.get("translations", {})
