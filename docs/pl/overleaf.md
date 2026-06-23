@@ -5,7 +5,7 @@ Overleaf to popularny edytor LaTeX działający w przeglądarce internetowej. Do
 ## Instrukcja krok po kroku
 
 1. Zaloguj się na swoje konto na stronie [Overleaf.com](https://www.overleaf.com) i otwórz swój projekt.
-2. W lewym górnym rogu ekranu (nad strukturą plików) znajdź i kliknij przycisk **Menu**.
+2. W lewym górnym rogu ekranu (nad strukturą plików) znajdź i kliknij przycisk **File**.
 3. W sekcji **Settings** (Ustawienia) znajdź pozycję o nazwie **Compiler** (Kompilator).
 4. Kliknij na rozwijaną listę (domyślnie może tam być ustawione *pdfLaTeX*) i wybierz **XeLaTeX**.
 5. Zamknij menu (klikając ponownie przycisk *Menu* lub klikając poza jego obszarem).
