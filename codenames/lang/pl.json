@@ -1,10 +1,11 @@
 {
     "full_lang_name": "Polski",
+    "babel_lang": "polish",
     "translations": {
         "title": "TAJNIACY --- PLANSZA GŁÓWNA",
         "key_title_1": "KARTA KLUCZA --- KAPITAN 1",
         "key_title_2": "KARTA KLUCZA --- KAPITAN 2 (KOPIA)",
-        "legend": "Legenda: \\textbf{{A}} - Ciemnoszary (Zaczyna) | \\textbf{{B}} - Jasnoszary | \\textbf{{--}} - Neutralny | \\textbf{{X}} - Zabójca",
+        "legend": "Legenda: \\textbf{A} - Ciemnoszary (Zaczyna) | \\textbf{B} - Jasnoszary | \\textbf{--} - Neutralny | \\textbf{X} - Zabójca",
         "cut_here": "TNIJ TUTAJ"
     },
     "words": [

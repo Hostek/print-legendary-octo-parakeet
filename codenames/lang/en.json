@@ -1,10 +1,11 @@
 {
     "full_lang_name": "English (American)",
+    "babel_lang": "english",
     "translations": {
         "title": "CODENAMES --- MAIN BOARD",
         "key_title_1": "KEY CARD --- SPYMASTER 1",
         "key_title_2": "KEY CARD --- SPYMASTER 2 (COPY)",
-        "legend": "Legend: \\textbf{{A}} - Dark Gray (Starts) | \\textbf{{B}} - Light Gray | \\textbf{{--}} - Neutral | \\textbf{{X}} - Assassin",
+        "legend": "Legend: \\textbf{A} - Dark Gray (Starts) | \\textbf{B} - Light Gray | \\textbf{--} - Neutral | \\textbf{X} - Assassin",
         "cut_here": "CUT HERE"
     },
     "words": [
