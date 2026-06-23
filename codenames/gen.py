@@ -8,7 +8,7 @@ LANG_DIR = "./lang"
 
 
 def bootstrap_languages():
-    """Inicjalizuje strukturę folderu ./lang/ i domyślnych plików językowych."""
+    """Inicjalizuje strukturę folderu ./lang/."""
     if not os.path.exists(LANG_DIR):
         os.makedirs(LANG_DIR)
 
@@ -66,7 +66,7 @@ def load_custom_words_file(filepath):
             return [line.strip() for line in f if line.strip()]
 
 
-def generate_latex(words, translations, lang_code):
+def generate_latex(words, translations, babel_lang):
     if len(words) < 25:
         print(
             f"Error: Word list only contains {len(words)} items. At least 25 are required."
@@ -75,11 +75,9 @@ def generate_latex(words, translations, lang_code):
 
     selected_words = random.sample(words, 25)
 
-    # Przygotowanie klucza (9 dla A, 8 dla B, 7 neutralnych, 1 zabójca)
     key_roles = (["A"] * 9) + (["B"] * 8) + ["N"] * 7 + ["X"]
     random.shuffle(key_roles)
 
-    # Generowanie kodu tabeli słów
     grid_rows = ""
     for i in range(5):
         row_words = selected_words[i * 5 : (i + 1) * 5]
@@ -115,7 +113,6 @@ def generate_latex(words, translations, lang_code):
 \\usepackage{{xcolor}}
 \\usepackage{{graphicx}}
 
-% Safe font loading with system fallbacks
 \\usepackage{{fontspec}}
 \\IfFontExistsTF{{Linux Libertine O}}{{
   \\setmainfont{{Linux Libertine O}}
@@ -126,39 +123,34 @@ def generate_latex(words, translations, lang_code):
     \\IfFontExistsTF{{Times New Roman}}{{
       \\setmainfont{{Times New Roman}}
     }}{{
-      % Fallback to LaTeX default (Latin Modern Roman)
     }}
   }}
 }}
 
-\\usepackage[{'polish' if lang_code == 'pl' else 'english'}]{{babel}}
+\\usepackage[{babel_lang}]{{babel}}
 
-% Grid configuration
 \\newcolumntype{{Y}}{{>{{\\centering\\arraybackslash}}m{{3.5cm}}}}
-\\newcolumntype{{Z}}{{>{{\\centering\\arraybackslash}}m{{2.0cm}}}} % Larger key cells
+\\newcolumntype{{Z}}{{>{{\\centering\\arraybackslash}}m{{2.0cm}}}}
 
 \\begin{{document}}
 \\pagestyle{{empty}}
 
-% --- PAGE 1: MAIN BOARD (A4 LANDSCAPE, BIGGER MARGIN) ---
 \\newgeometry{{landscape, a4paper, margin=0.8cm}}
 
 \\begin{{center}}
-    % Upper table
     {{\\Large \\textbf{{{translations['title']}}}}}
     \\par\\vspace{{0.3cm}}
-    \\renewcommand{{\\arraystretch}}{{4.2}} % Increased cell height (y-padding)
+    \\renewcommand{{\\arraystretch}}{{4.2}}
     \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
         \\hline
 {grid_rows}    \\end{{tabular}}
     
     \\vfill
     
-    % Lower table (rotated 180 degrees)
     \\rotatebox{{180}}{{%
         \\begin{{minipage}}{{\\linewidth}}
             \\centering
-            \\renewcommand{{\\arraystretch}}{{4.2}} % Increased cell height (y-padding)
+            \\renewcommand{{\\arraystretch}}{{4.2}}
             \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
                 \\hline
 {grid_rows}            \\end{{tabular}}
@@ -169,7 +161,6 @@ def generate_latex(words, translations, lang_code):
 \\end{{center}}
 
 \\newpage
-% --- PAGE 2: SPYMASTER KEYS (A4 PORTRAIT) ---
 \\restoregeometry
 \\newgeometry{{portrait, a4paper, margin=1.5cm}}
 
@@ -236,16 +227,14 @@ def main():
 
     args = parser.parse_args()
 
-    # Handle the --lang-list request
     if args.lang_list:
         list_languages()
         sys.exit(0)
 
-    # Load selected language configuration
     lang_config = load_lang_config(args.lang)
     translations = lang_config.get("translations", {})
+    babel_lang = lang_config.get("babel_lang", "english")
 
-    # Select word source (CLI override or language JSON default)
     if args.words:
         words_pool = load_custom_words_file(args.words)
         print(f"Loaded {len(words_pool)} custom words from: {args.words}")
@@ -255,8 +244,7 @@ def main():
             f"Loaded {len(words_pool)} default words for language: '{args.lang}' ({lang_config.get('full_lang_name')})"
         )
 
-    # Generate LaTeX output
-    latex_content = generate_latex(words_pool, translations, args.lang)
+    latex_content = generate_latex(words_pool, translations, babel_lang)
     output_filename = "game.tex"
 
     with open(output_filename, "w", encoding="utf-8") as f:
