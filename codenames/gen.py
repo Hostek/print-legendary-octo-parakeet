@@ -2,184 +2,84 @@ import argparse
 import random
 import json
 import os
+import sys
 
-DEFAULT_WORD_BANKS = {
-    "pl": [
-        "Czekolada",
-        "Kaktus",
-        "Zamek",
-        "Pirat",
-        "Klucz",
-        "Mysz",
-        "Gwiazda",
-        "Telefon",
-        "Oko",
-        "Lustro",
-        "Krowa",
-        "Rower",
-        "Szkoła",
-        "Banan",
-        "Chmura",
-        "Statek",
-        "Pies",
-        "Słońce",
-        "Książka",
-        "Ryba",
-        "Dinozaur",
-        "Kawa",
-        "Poduszka",
-        "Balon",
-        "Drzewo",
-        "Zegarek",
-        "Samolot",
-        "Kapelusz",
-        "Pudełko",
-        "Karta",
-        "Ogórek",
-        "Szarlotka",
-        "Kot",
-        "Wulkan",
-        "Puszcza",
-        "Księżyc",
-        "Złoto",
-        "Woda",
-        "Ogień",
-        "Ziemniak",
-        "Bilet",
-        "Czapka",
-        "Dach",
-        "Ekran",
-        "Fotel",
-        "Gitara",
-        "Igła",
-        "Jabłko",
-        "Komin",
-        "Lampa",
-        "Most",
-        "Namiot",
-        "Ołówek",
-        "Płyta",
-        "Radio",
-        "Serce",
-        "Torba",
-        "Ucho",
-        "Wózek",
-        "Ząb",
-    ],
-    "en": [
-        "Chocolate",
-        "Cactus",
-        "Castle",
-        "Pirate",
-        "Key",
-        "Mouse",
-        "Star",
-        "Phone",
-        "Eye",
-        "Mirror",
-        "Cow",
-        "Bicycle",
-        "School",
-        "Banana",
-        "Cloud",
-        "Ship",
-        "Dog",
-        "Sun",
-        "Book",
-        "Fish",
-        "Dinosaur",
-        "Coffee",
-        "Pillow",
-        "Balloon",
-        "Tree",
-        "Watch",
-        "Plane",
-        "Hat",
-        "Box",
-        "Card",
-        "Cucumber",
-        "Apple Pie",
-        "Cat",
-        "Volcano",
-        "Forest",
-        "Moon",
-        "Gold",
-        "Water",
-        "Fire",
-        "Potato",
-        "Ticket",
-        "Cap",
-        "Roof",
-        "Screen",
-        "Armchair",
-        "Guitar",
-        "Needle",
-        "Apple",
-        "Chimney",
-        "Lamp",
-        "Bridge",
-        "Tent",
-        "Pencil",
-        "Disc",
-        "Radio",
-        "Heart",
-        "Bag",
-        "Ear",
-        "Cart",
-        "Tooth",
-    ],
-}
-
-TRANSLATIONS = {
-    "pl": {
-        "title": "TAJNIACY --- PLANSZA GŁÓWNA",
-        "key_title_1": "KARTA KLUCZA --- KAPITAN 1",
-        "key_title_2": "KARTA KLUCZA --- KAPITAN 2 (KOPIA)",
-        "legend": "Legenda: \\textbf{A} - Ciemnoszary (Zaczyna) | \\textbf{B} - Jasnoszary | \\textbf{--} - Neutralny | \\textbf{X} - Zabójca",
-        "cut_here": "TNIJ TUTAJ",
-    },
-    "en": {
-        "title": "CODENAMES --- MAIN BOARD",
-        "key_title_1": "KEY CARD --- SPYMASTER 1",
-        "key_title_2": "KEY CARD --- SPYMASTER 2 (COPY)",
-        "legend": "Legend: \\textbf{A} - Dark Gray (Starts) | \\textbf{B} - Light Gray | \\textbf{--} - Neutral | \\textbf{X} - Assassin",
-        "cut_here": "CUT HERE",
-    },
-}
+LANG_DIR = "./lang"
 
 
-def load_custom_words(filepath, lang):
-    """Ładuje słowa z zewnętrznego pliku TXT lub JSON."""
+def bootstrap_languages():
+    """Inicjalizuje strukturę folderu ./lang/ i domyślnych plików językowych."""
+    if not os.path.exists(LANG_DIR):
+        os.makedirs(LANG_DIR)
+
+
+def list_languages():
+    """Skanuje katalog ./lang/ i wypisuje wszystkie dostępne języki."""
+    bootstrap_languages()
+    files = [f for f in os.listdir(LANG_DIR) if f.endswith(".json")]
+
+    if not files:
+        print("No language configurations found in ./lang/")
+        return
+
+    print("Available languages in ./lang/:")
+    for filename in sorted(files):
+        lang_code = os.path.splitext(filename)[0]
+        filepath = os.path.join(LANG_DIR, filename)
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                full_name = data.get("full_lang_name", "Unknown Language")
+                print(f"  - {lang_code:6}: {full_name}")
+        except Exception:
+            print(f"  - {lang_code:6}: [Error reading file]")
+
+
+def load_lang_config(lang_code):
+    """Ładuje plik JSON dla konkretnego kodu językowego."""
+    filepath = os.path.join(LANG_DIR, f"{lang_code}.json")
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Nie znaleziono pliku: {filepath}")
+        print(f"Error: Language file '{filepath}' does not exist.")
+        print("Use --lang-list to view available languages.")
+        sys.exit(1)
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_custom_words_file(filepath):
+    """Ładuje słowa z zewnętrznego pliku TXT (jedno słowo na linię) lub JSON."""
+    if not os.path.exists(filepath):
+        print(f"Error: Custom word file '{filepath}' not found.")
+        sys.exit(1)
 
     if filepath.endswith(".json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if isinstance(data, dict) and lang in data:
-                return data[lang]
-            elif isinstance(data, list):
+            if isinstance(data, list):
                 return data
             else:
-                raise ValueError("Niepoprawny format pliku JSON ze słowami.")
+                print("Error: JSON word list must be a flat array of strings.")
+                sys.exit(1)
     else:
         with open(filepath, "r", encoding="utf-8") as f:
-            words = [line.strip() for line in f if line.strip()]
-        return words
+            return [line.strip() for line in f if line.strip()]
 
 
-def generate_latex(words, lang):
+def generate_latex(words, translations, lang_code):
     if len(words) < 25:
-        raise ValueError(
-            f"Wybrana baza słów ma tylko {len(words)} wyrazów. Wymagane jest minimum 25."
+        print(
+            f"Error: Word list only contains {len(words)} items. At least 25 are required."
         )
+        sys.exit(1)
+
     selected_words = random.sample(words, 25)
 
+    # Przygotowanie klucza (9 dla A, 8 dla B, 7 neutralnych, 1 zabójca)
     key_roles = (["A"] * 9) + (["B"] * 8) + ["N"] * 7 + ["X"]
     random.shuffle(key_roles)
 
-    trans = TRANSLATIONS.get(lang, TRANSLATIONS["en"])
-
+    # Generowanie kodu tabeli słów
     grid_rows = ""
     for i in range(5):
         row_words = selected_words[i * 5 : (i + 1) * 5]
@@ -215,6 +115,7 @@ def generate_latex(words, lang):
 \\usepackage{{xcolor}}
 \\usepackage{{graphicx}}
 
+% Safe font loading with system fallbacks
 \\usepackage{{fontspec}}
 \\IfFontExistsTF{{Linux Libertine O}}{{
   \\setmainfont{{Linux Libertine O}}
@@ -225,69 +126,75 @@ def generate_latex(words, lang):
     \\IfFontExistsTF{{Times New Roman}}{{
       \\setmainfont{{Times New Roman}}
     }}{{
+      % Fallback to LaTeX default (Latin Modern Roman)
     }}
   }}
 }}
 
-\\usepackage[{'polish' if lang == 'pl' else 'english'}]{{babel}}
+\\usepackage[{'polish' if lang_code == 'pl' else 'english'}]{{babel}}
 
+% Grid configuration
 \\newcolumntype{{Y}}{{>{{\\centering\\arraybackslash}}m{{3.5cm}}}}
-\\newcolumntype{{Z}}{{>{{\\centering\\arraybackslash}}m{{2.0cm}}}}
+\\newcolumntype{{Z}}{{>{{\\centering\\arraybackslash}}m{{2.0cm}}}} % Larger key cells
 
 \\begin{{document}}
 \\pagestyle{{empty}}
 
-\\newgeometry{{landscape, a4paper, margin=1.0cm}}
+% --- PAGE 1: MAIN BOARD (A4 LANDSCAPE, BIGGER MARGIN) ---
+\\newgeometry{{landscape, a4paper, margin=0.8cm}}
 
 \\begin{{center}}
-    {{\\Large \\textbf{{{trans['title']}}}}}
+    % Upper table
+    {{\\Large \\textbf{{{translations['title']}}}}}
     \\par\\vspace{{0.3cm}}
-    \\renewcommand{{\\arraystretch}}{{1.8}}
+    \\renewcommand{{\\arraystretch}}{{4.2}} % Increased cell height (y-padding)
     \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
         \\hline
 {grid_rows}    \\end{{tabular}}
     
     \\vfill
     
+    % Lower table (rotated 180 degrees)
     \\rotatebox{{180}}{{%
         \\begin{{minipage}}{{\\linewidth}}
             \\centering
-            \\renewcommand{{\\arraystretch}}{{1.8}}
+            \\renewcommand{{\\arraystretch}}{{4.2}} % Increased cell height (y-padding)
             \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
                 \\hline
 {grid_rows}            \\end{{tabular}}
             \\par\\vspace{{0.3cm}}
-            {{\\Large \\textbf{{{trans['title']}}}}}
+            {{\\Large \\textbf{{{translations['title']}}}}}
         \\end{{minipage}}%
     }}
 \\end{{center}}
 
 \\newpage
+% --- PAGE 2: SPYMASTER KEYS (A4 PORTRAIT) ---
 \\restoregeometry
 \\newgeometry{{portrait, a4paper, margin=1.5cm}}
 
 \\begin{{center}}
-    {{\\Large \\textbf{{{trans['key_title_1']}}}}}
+    {{\\Large \\textbf{{{translations['key_title_1']}}}}}
     \\par\\vspace{{0.2cm}}
-    {{\\small {trans['legend']}}}
+    {{\\small {translations['legend']}}}
     \\par\\vspace{{0.5cm}}
 
-    \\renewcommand{{\\arraystretch}}{{2.8}} % Większe wiersze klucza
+    \\renewcommand{{\\arraystretch}}{{2.8}}
     \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
         \\hline
 {key_table_code}
     \\end{{tabular}}
     
     \\par\\vspace{{1.2cm}}
-    \\noindent\\centerline{{- - - - - - - - - - - - - - - - - - - - - - - -  {trans['cut_here']}  - - - - - - - - - - - - - - - - - - - - - - - -}}
+    \\noindent\\centerline{{- - - - - - - - - - - - - - - - - - - - - - - -  {translations['cut_here']}  - - - - - - - - - - - - - - - - - - - - - - - -}}
     \\par\\vspace{{1.2cm}}
     
-    {{\\Large \\textbf{{{trans['key_title_2']}}}}}
+    {{\\Large \\textbf{{{translations['key_title_2']}}}}}
     \\par\\vspace{{0.2cm}}
-    {{\\small {trans['legend']}}}
+    {{\\small {translations['legend']}}}
     \\par\\vspace{{0.5cm}}
 
-    \\renewcommand{{\\arraystretch}}{{2.8}} % Większe wiersze klucza
+    \\renewcommand{{\\arraystretch}}{{2.8}}
     \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
         \\hline
 {key_table_code}
@@ -300,47 +207,62 @@ def generate_latex(words, lang):
 
 
 def main():
+    bootstrap_languages()
+
     parser = argparse.ArgumentParser(
-        description="Generator gry planszowej Tajniacy (Codenames) do formatu LaTeX."
+        description="LaTeX board and keycard generator for Codenames.",
+        epilog="Remember to compile the output game.tex file using XeLaTeX.",
     )
+
     parser.add_argument(
         "--lang",
-        choices=["pl", "en"],
+        type=str,
         default="en",
-        help="Wybór języka gry (pl/en). Domyślnie: en.",
+        help="Language code to use (looks for ./lang/[lang].json). Default is 'en'.",
     )
+
     parser.add_argument(
         "--words",
         type=str,
         default=None,
-        help="Opcjonalna ścieżka do własnego pliku ze słowami (.txt lub .json).",
+        help="Optional path to a custom word file (.txt with one word per line, or a flat JSON array).",
+    )
+
+    parser.add_argument(
+        "--lang-list",
+        action="store_true",
+        help="List all available languages inside the './lang' directory and exit.",
     )
 
     args = parser.parse_args()
 
+    # Handle the --lang-list request
+    if args.lang_list:
+        list_languages()
+        sys.exit(0)
+
+    # Load selected language configuration
+    lang_config = load_lang_config(args.lang)
+    translations = lang_config.get("translations", {})
+
+    # Select word source (CLI override or language JSON default)
     if args.words:
-        try:
-            word_bank = load_custom_words(args.words, args.lang)
-            print(
-                f"Załadowano własną bazę słów z pliku: {args.words} (Liczba słów: {len(word_bank)})"
-            )
-        except Exception as e:
-            print(f"Błąd podczas ładowania pliku ze słowami: {e}")
-            return
+        words_pool = load_custom_words_file(args.words)
+        print(f"Loaded {len(words_pool)} custom words from: {args.words}")
     else:
-        word_bank = DEFAULT_WORD_BANKS[args.lang]
+        words_pool = lang_config.get("words", [])
         print(
-            f"Używam domyślnej bazy słów dla języka: '{args.lang}' (Liczba słów: {len(word_bank)})"
+            f"Loaded {len(words_pool)} default words for language: '{args.lang}' ({lang_config.get('full_lang_name')})"
         )
 
-    try:
-        latex_content = generate_latex(word_bank, args.lang)
-        output_file = "game.tex"
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(latex_content)
-        print(f"Plik wyjściowy został pomyślnie zapisany jako: {output_file}")
-    except ValueError as e:
-        print(f"Błąd generowania: {e}")
+    # Generate LaTeX output
+    latex_content = generate_latex(words_pool, translations, args.lang)
+    output_filename = "game.tex"
+
+    with open(output_filename, "w", encoding="utf-8") as f:
+        f.write(latex_content)
+
+    print(f"LaTeX template successfully saved as: {output_filename}")
 
 
 if __name__ == "__main__":
