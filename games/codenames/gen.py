@@ -8,13 +8,13 @@ LANG_DIR = "./lang"
 
 
 def bootstrap_languages():
-    """Inicjalizuje strukturę folderu ./lang/."""
+    """Initializes folder structure for ./lang/."""
     if not os.path.exists(LANG_DIR):
         os.makedirs(LANG_DIR)
 
 
 def list_languages():
-    """Skanuje katalog ./lang/ i wypisuje wszystkie dostępne języki."""
+    """Scans ./lang/ folder and outputs all available languages."""
     bootstrap_languages()
     files = [f for f in os.listdir(LANG_DIR) if f.endswith(".json")]
 
@@ -36,7 +36,7 @@ def list_languages():
 
 
 def load_lang_config(lang_code):
-    """Ładuje plik JSON dla konkretnego kodu językowego."""
+    """Loads JSON file for specific language code."""
     filepath = os.path.join(LANG_DIR, f"{lang_code}.json")
     if not os.path.exists(filepath):
         print(f"Error: Language file '{filepath}' does not exist.")
@@ -48,7 +48,7 @@ def load_lang_config(lang_code):
 
 
 def load_custom_words_file(filepath):
-    """Ładuje słowa z zewnętrznego pliku TXT (jedno słowo na linię) lub JSON."""
+    """Loads words from custom plain text or JSON file."""
     if not os.path.exists(filepath):
         print(f"Error: Custom word file '{filepath}' not found.")
         sys.exit(1)
@@ -66,7 +66,7 @@ def load_custom_words_file(filepath):
             return [line.strip() for line in f if line.strip()]
 
 
-def generate_latex(words, translations, babel_lang):
+def generate_latex(words, translations, babel_lang, layout_type):
     if len(words) < 25:
         print(
             f"Error: Word list only contains {len(words)} items. At least 25 are required."
@@ -88,23 +88,110 @@ def generate_latex(words, translations, babel_lang):
             + "\n"
         )
 
-    def format_cell(role):
-        if role == "A":
-            return r"\cellcolor{black!60}\textcolor{white}{\textbf{A}}"
-        elif role == "B":
-            return r"\cellcolor{black!20}\textcolor{black}{\textbf{B}}"
-        elif role == "N":
-            return r"\cellcolor{white}\textcolor{black}{\textbf{--}}"
-        elif role == "X":
-            return r"\cellcolor{black}\textcolor{white}{\textbf{X}}"
+    if layout_type == 1:
+        spymaster_rows = ""
+        for i in range(5):
+            row_words = selected_words[i * 5 : (i + 1) * 5]
+            row_roles = key_roles[i * 5 : (i + 1) * 5]
+            cells = []
+            for w, r in zip(row_words, row_roles):
+                if r == "A":
+                    cells.append(
+                        rf"\cellcolor{{black!60}}\textcolor{{white}}{{\textbf{{\Large {w}}}}}"
+                    )
+                elif r == "B":
+                    cells.append(
+                        rf"\cellcolor{{black!20}}\textcolor{{black}}{{\textbf{{\Large {w}}}}}"
+                    )
+                elif r == "N":
+                    cells.append(
+                        rf"\cellcolor{{white}}\textcolor{{black}}{{\textbf{{\Large {w}}}}}"
+                    )
+                elif r == "X":
+                    cells.append(
+                        rf"\cellcolor{{black}}\textcolor{{white}}{{\textbf{{\Large {w}}}}}"
+                    )
+            spymaster_rows += "        " + " & ".join(cells) + r" \\ \hline" + "\n"
 
-    key_rows = []
-    for i in range(5):
-        row_roles = key_roles[i * 5 : (i + 1) * 5]
-        key_rows.append(
-            "        " + " & ".join([format_cell(r) for r in row_roles]) + r" \\ \hline"
-        )
-    key_table_code = "\n".join(key_rows)
+        page_2_code = f"""\\newgeometry{{landscape, a4paper, margin=0.8cm}}
+
+\\begin{{center}}
+    {{\\Large \\textbf{{{translations['key_title_1']}}}}}
+    \\par\\vspace{{0.2cm}}
+    {{\\small {translations['legend']}}}
+    \\par\\vspace{{0.3cm}}
+    \\renewcommand{{\\arraystretch}}{{4.2}}
+    \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
+        \\hline
+{spymaster_rows}    \\end{{tabular}}
+    
+    \\vfill
+    
+    \\rotatebox{{180}}{{%
+        \\begin{{minipage}}{{\\linewidth}}
+            \\centering
+            \\renewcommand{{\\arraystretch}}{{4.2}}
+            \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
+                \\hline
+{spymaster_rows}            \\end{{tabular}}
+            \\par\\vspace{{0.3cm}}
+            {{\\Large \\textbf{{{translations['key_title_1']}}}}}
+            \\par\\vspace{{0.2cm}}
+            {{\\small {translations['legend']}}}
+        \\end{{minipage}}%
+    }}
+\\end{{center}}"""
+    else:
+
+        def format_cell(role):
+            if role == "A":
+                return r"\cellcolor{black!60}\textcolor{white}{\textbf{A}}"
+            elif role == "B":
+                return r"\cellcolor{black!20}\textcolor{black}{\textbf{B}}"
+            elif role == "N":
+                return r"\cellcolor{white}\textcolor{black}{\textbf{--}}"
+            elif role == "X":
+                return r"\cellcolor{black}\textcolor{white}{\textbf{X}}"
+
+        key_rows = []
+        for i in range(5):
+            row_roles = key_roles[i * 5 : (i + 1) * 5]
+            key_rows.append(
+                "        "
+                + " & ".join([format_cell(r) for r in row_roles])
+                + r" \\ \hline"
+            )
+        key_table_code = "\n".join(key_rows)
+
+        page_2_code = f"""\\newgeometry{{portrait, a4paper, margin=1.5cm}}
+
+\\begin{{center}}
+    {{\\Large \\textbf{{{translations['key_title_1']}}}}}
+    \\par\\vspace{{0.2cm}}
+    {{\\small {translations['legend']}}}
+    \\par\\vspace{{0.5cm}}
+
+    \\renewcommand{{\\arraystretch}}{{2.8}}
+    \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
+        \\hline
+{key_table_code}
+    \\end{{tabular}}
+    
+    \\par\\vspace{{1.2cm}}
+    \\noindent\\centerline{{- - - - - - - - - - - - - - - - - - - - - - - -  {translations['cut_here']}  - - - - - - - - - - - - - - - - - - - - - - - -}}
+    \\par\\vspace{{1.2cm}}
+    
+    {{\\Large \\textbf{{{translations['key_title_2']}}}}}
+    \\par\\vspace{{0.2cm}}
+    {{\\small {translations['legend']}}}
+    \\par\\vspace{{0.5cm}}
+
+    \\renewcommand{{\\arraystretch}}{{2.8}}
+    \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
+        \\hline
+{key_table_code}
+    \\end{{tabular}}
+\\end{{center}}"""
 
     latex_document = f"""\\documentclass[11pt, a4paper]{{article}}
 \\usepackage[a4paper]{{geometry}}
@@ -162,35 +249,7 @@ def generate_latex(words, translations, babel_lang):
 
 \\newpage
 \\restoregeometry
-\\newgeometry{{portrait, a4paper, margin=1.5cm}}
-
-\\begin{{center}}
-    {{\\Large \\textbf{{{translations['key_title_1']}}}}}
-    \\par\\vspace{{0.2cm}}
-    {{\\small {translations['legend']}}}
-    \\par\\vspace{{0.5cm}}
-
-    \\renewcommand{{\\arraystretch}}{{2.8}}
-    \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
-        \\hline
-{key_table_code}
-    \\end{{tabular}}
-    
-    \\par\\vspace{{1.2cm}}
-    \\noindent\\centerline{{- - - - - - - - - - - - - - - - - - - - - - - -  {translations['cut_here']}  - - - - - - - - - - - - - - - - - - - - - - - -}}
-    \\par\\vspace{{1.2cm}}
-    
-    {{\\Large \\textbf{{{translations['key_title_2']}}}}}
-    \\par\\vspace{{0.2cm}}
-    {{\\small {translations['legend']}}}
-    \\par\\vspace{{0.5cm}}
-
-    \\renewcommand{{\\arraystretch}}{{2.8}}
-    \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
-        \\hline
-{key_table_code}
-    \\end{{tabular}}
-\\end{{center}}
+{page_2_code}
 
 \\end{{document}}"""
 
@@ -232,6 +291,14 @@ def main():
         help="Optional seed for the random number generator to ensure reproducible card generation.",
     )
 
+    parser.add_argument(
+        "--type",
+        type=int,
+        choices=[1, 2],
+        default=1,
+        help="Layout type: 1 (Default - Spymaster sheet with direct word annotations in landscape), 2 (Portrait sheet with classic abstract small keycards).",
+    )
+
     args = parser.parse_args()
 
     if args.lang_list:
@@ -255,7 +322,7 @@ def main():
             f"Loaded {len(words_pool)} default words for language: '{args.lang}' ({lang_config.get('full_lang_name')})"
         )
 
-    latex_content = generate_latex(words_pool, translations, babel_lang)
+    latex_content = generate_latex(words_pool, translations, babel_lang, args.type)
     output_filename = "game.tex"
 
     with open(output_filename, "w", encoding="utf-8") as f:
