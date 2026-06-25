@@ -10,3 +10,6 @@ Overleaf to popularny edytor LaTeX działający w przeglądarce internetowej. Do
 4. Kliknij na rozwijaną listę (domyślnie może tam być ustawione *pdfLaTeX*) i wybierz **XeLaTeX**.
 5. Zamknij menu (klikając ponownie przycisk *Menu* lub klikając poza jego obszarem).
 6. Kliknij zielony przycisk **Recompile** (lub użyj skrótu `Ctrl + Enter` / `Cmd + Enter`), aby odświeżyć podgląd dokumentu z nowymi ustawieniami.
+
+---
+[← Powrót do Poradnika dla początkujących](README.md)

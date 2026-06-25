@@ -55,3 +55,6 @@ sudo apt install texlive-xetex texlive-lang-polish
    xelatex dokument.tex
    ```
 4. Po zakończeniu kompilacji w tym samym folderze powstanie gotowy plik PDF o nazwie `dokument.pdf`.
+
+---
+[← Powrót do Poradnika dla początkujących](README.md)

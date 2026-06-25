@@ -10,3 +10,6 @@ Overleaf is a cloud-based LaTeX editor. By default, new projects are compiled us
 4. Click the dropdown menu (which likely says *pdfLaTeX* by default) and select **XeLaTeX**.
 5. Close the menu panel by clicking the **Menu** button again or clicking outside of it.
 6. Click the green **Recompile** button (or press `Ctrl + Enter` / `Cmd + Enter`) to rebuild your document with the new compiler settings.
+
+---
+[← Back to Beginner's Guide](README.md)

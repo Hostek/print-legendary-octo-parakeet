@@ -66,3 +66,6 @@ Aby sprawdzić, czy Python działa, stwórzmy prosty program "Hello World".
    ```bash
    python3 skrypt.py
    ```
+
+---
+[← Powrót do Poradnika dla początkujących](README.md)
