@@ -1,0 +1,36 @@
+Algorytm
+Sortowanie
+Wyszukiwanie Binarne
+Rekurencja
+Graf
+Drzewo
+Dijkstra
+Programowanie Dynamiczne
+Drzewo Przedziałowe
+Maska Bitowa
+Złożoność
+Przepełnienie
+Wskaźnik
+Tablica
+Napis
+Zachłanny
+Backtracking
+Przepływ
+Skojarzenie
+Geometria
+Haszowanie
+Mapa
+Kolejka
+Stos
+Heurystyka
+Boolean
+Inwersja Modularna
+Prekompilacja
+Pierwiastek
+Fenwick
+Stała
+Opóźnienie
+Kompilator
+Python
+C++
+Java

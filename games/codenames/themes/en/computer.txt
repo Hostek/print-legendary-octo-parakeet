@@ -1,0 +1,35 @@
+Processor
+Keyboard
+Mouse
+Monitor
+Motherboard
+Memory
+Hard Drive
+Graphics Card
+Laptop
+Server
+Internet
+Router
+Software
+Hardware
+Database
+Compiler
+Desktop
+Folder
+File
+Icon
+Pixel
+Resolution
+Password
+Encryption
+Firewall
+Browser
+Cloud
+Update
+Bug
+Driver
+Kernel
+Terminal
+Shell
+Shortcut
+Cache

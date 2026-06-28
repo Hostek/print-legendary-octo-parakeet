@@ -1,0 +1,35 @@
+Procesor
+Klawiatura
+Mysz
+Monitor
+Płyta Główna
+Pamięć
+Dysk Twardy
+Karta Graficzna
+Laptop
+Serwer
+Internet
+Router
+Oprogramowanie
+Sprzęt
+Baza Danych
+Kompilator
+Pulpit
+Folder
+Plik
+Ikona
+Piksel
+Rozdzielczość
+Hasło
+Szyfrowanie
+Firewall
+Przeglądarka
+Chmura
+Aktualizacja
+Błąd
+Sterownik
+Jądro
+Terminal
+Shell
+Skrót
+Cache

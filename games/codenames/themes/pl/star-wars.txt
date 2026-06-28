@@ -1,0 +1,47 @@
+Vader
+Yoda
+Skywalker
+Jedi
+Sith
+Miecz Świetlny
+Tatooine
+Sokół Millennium
+Chewbacca
+R2D2
+C3PO
+Han Solo
+Leia
+Obi-Wan
+Gwiazda Śmierci
+X-Wing
+Szturmowiec
+Boba Fett
+Jabba
+Ewok
+Imperator
+Droid
+Mandalorianin
+Grogu
+Ahsoka
+Coruscant
+Naboo
+Hoth
+Endor
+Wookie
+Kylo Ren
+Rey
+Finn
+Poe
+BB8
+Snoke
+Maul
+Padme
+Tarkin
+Greedo
+Lando
+Ackbar
+Windu
+Qui-Gon
+Rex
+Ventress
+Thrawn

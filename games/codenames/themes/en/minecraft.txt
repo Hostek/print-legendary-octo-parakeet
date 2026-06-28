@@ -1,0 +1,38 @@
+Steve
+Alex
+Creeper
+Zombie
+Skeleton
+Enderman
+Diamond
+Nether
+Fortress
+Bastion
+Village
+Iron Golem
+Pickaxe
+Sword
+Bedrock
+Obsidian
+Portal
+Redstone
+Piston
+Chest
+Crafting Table
+Furnace
+Coal
+Gold
+Emerald
+Ender Dragon
+Elytra
+Shulker
+Ghast
+Piglin
+Warden
+Sculk
+Biome
+Jungle
+Desert
+Ocean
+Taiga
+Swamp

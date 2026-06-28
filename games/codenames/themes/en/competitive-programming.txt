@@ -1,0 +1,36 @@
+Algorithm
+Sorting
+Binary Search
+Recursion
+Graph
+Tree
+Dijkstra
+Dynamic Programming
+Segment Tree
+Bitmask
+Complexity
+Overflow
+Pointer
+Array
+String
+Greedy
+Backtracking
+Flow
+Matching
+Geometry
+Hash
+Map
+Queue
+Stack
+Heuristic
+Boolean
+Modular Inversion
+Precomputation
+Sqrt Decomposition
+Fenwick
+Constant
+Latency
+Compiler
+Python
+C++
+Java

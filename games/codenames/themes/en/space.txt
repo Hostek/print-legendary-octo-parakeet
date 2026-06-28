@@ -1,0 +1,36 @@
+Galaxy
+Star
+Planet
+Moon
+Sun
+Orbit
+Astronaut
+Rocket
+Comet
+Meteor
+Asteroid
+Black Hole
+NASA
+Telescope
+Nebula
+Gravity
+Vacuum
+Supernova
+Eclipse
+Satellite
+Universe
+Space Station
+Mars
+Jupiter
+Saturn
+Venus
+Mercury
+Uranus
+Neptune
+Pluto
+Milky Way
+Cosmos
+Lightyear
+Spacecraft
+Alien
+Spacesuit
