@@ -5,6 +5,20 @@ import os
 import sys
 
 LANG_DIR = "./lang"
+FALLBACK_DOMAIN = "github.com/Hostek/print-legendary-octo-parakeet"
+
+
+def get_project_domain():
+    """Reads the domain from the root config file or returns fallback."""
+    possible_paths = ["../../PROJECT_CONFIG.json", "./PROJECT_CONFIG.json"]
+    for path in possible_paths:
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    return json.load(f).get("domain_url", FALLBACK_DOMAIN)
+            except Exception:
+                pass
+    return FALLBACK_DOMAIN
 
 
 def bootstrap_languages():
@@ -36,7 +50,7 @@ def list_languages():
 
 
 def load_lang_config(lang_code):
-    """Loads JSON file for specific language code."""
+    """Loads JSON file and injects the project domain into the watermark."""
     filepath = os.path.join(LANG_DIR, f"{lang_code}.json")
     if not os.path.exists(filepath):
         print(f"Error: Language file '{filepath}' does not exist.")
@@ -44,7 +58,15 @@ def load_lang_config(lang_code):
         sys.exit(1)
 
     with open(filepath, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+
+    domain = get_project_domain()
+    if "translations" in data and "watermark" in data["translations"]:
+        data["translations"]["watermark"] = data["translations"]["watermark"].replace(
+            "[DOMAIN_URL]", domain
+        )
+
+    return data
 
 
 def load_custom_words_file(filepath):
@@ -74,9 +96,10 @@ def generate_latex(words, translations, babel_lang, layout_type):
         sys.exit(1)
 
     selected_words = random.sample(words, 25)
-
     key_roles = (["A"] * 9) + (["B"] * 8) + ["N"] * 7 + ["X"]
     random.shuffle(key_roles)
+
+    watermark_tex = rf"\vfill \centering \color{{gray}}{{\tiny {translations.get('watermark', '')}}}"
 
     grid_rows = ""
     for i in range(5):
@@ -95,63 +118,61 @@ def generate_latex(words, translations, babel_lang, layout_type):
             row_roles = key_roles[i * 5 : (i + 1) * 5]
             cells = []
             for w, r in zip(row_words, row_roles):
+                color = "white"
+                text_color = "black"
+                label = r
                 if r == "A":
-                    cells.append(
-                        rf"\cellcolor{{black!60}}\textcolor{{white}}{{\textbf{{\Large {w}}}}}"
-                    )
+                    color = "black!60"
+                    text_color = "white"
                 elif r == "B":
-                    cells.append(
-                        rf"\cellcolor{{black!20}}\textcolor{{black}}{{\textbf{{\Large {w}}}}}"
-                    )
+                    color = "black!20"
+                    text_color = "black"
                 elif r == "N":
-                    cells.append(
-                        rf"\cellcolor{{white}}\textcolor{{black}}{{\textbf{{\Large {w}}}}}"
-                    )
+                    color = "white"
+                    text_color = "black"
+                    label = "--"
                 elif r == "X":
-                    cells.append(
-                        rf"\cellcolor{{black}}\textcolor{{white}}{{\textbf{{\Large {w}}}}}"
-                    )
+                    color = "black"
+                    text_color = "white"
+
+                cells.append(
+                    rf"\cellcolor{{{color}}}\color{{{text_color}}}{{\small {label} \par \textbf{{\Large {w}}}}}"
+                )
             spymaster_rows += "        " + " & ".join(cells) + r" \\ \hline" + "\n"
 
         page_2_code = f"""\\newgeometry{{landscape, a4paper, margin=0.8cm}}
-
 \\begin{{center}}
-    {{\\Large \\textbf{{{translations['key_title_1']}}}}}
-    \\par\\vspace{{0.2cm}}
-    {{\\small {translations['legend']}}}
-    \\par\\vspace{{0.3cm}}
-    \\renewcommand{{\\arraystretch}}{{4.2}}
+    {{\\Large \\textbf{{{translations['key_title_1']}}}}} \\par\\vspace{{0.2cm}}
+    {{\\small {translations['legend']}}} \\par\\vspace{{0.3cm}}
+    \\renewcommand{{\\arraystretch}}{{3.8}}
     \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
         \\hline
 {spymaster_rows}    \\end{{tabular}}
-    
     \\vfill
-    
     \\rotatebox{{180}}{{%
         \\begin{{minipage}}{{\\linewidth}}
             \\centering
-            \\renewcommand{{\\arraystretch}}{{4.2}}
+            \\renewcommand{{\\arraystretch}}{{3.8}}
             \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
                 \\hline
 {spymaster_rows}            \\end{{tabular}}
             \\par\\vspace{{0.3cm}}
             {{\\Large \\textbf{{{translations['key_title_1']}}}}}
-            \\par\\vspace{{0.2cm}}
-            {{\\small {translations['legend']}}}
         \\end{{minipage}}%
     }}
+    {watermark_tex}
 \\end{{center}}"""
     else:
 
         def format_cell(role):
             if role == "A":
-                return r"\cellcolor{black!60}\textcolor{white}{\textbf{A}}"
+                return r"\cellcolor{black!60}\color{white}{\textbf{A}}"
             elif role == "B":
-                return r"\cellcolor{black!20}\textcolor{black}{\textbf{B}}"
+                return r"\cellcolor{black!20}\color{black}{\textbf{B}}"
             elif role == "N":
-                return r"\cellcolor{white}\textcolor{black}{\textbf{--}}"
+                return r"\cellcolor{white}\color{black}{\textbf{--}}"
             elif role == "X":
-                return r"\cellcolor{black}\textcolor{white}{\textbf{X}}"
+                return r"\cellcolor{black}\color{white}{\textbf{X}}"
 
         key_rows = []
         for i in range(5):
@@ -164,76 +185,47 @@ def generate_latex(words, translations, babel_lang, layout_type):
         key_table_code = "\n".join(key_rows)
 
         page_2_code = f"""\\newgeometry{{portrait, a4paper, margin=1.5cm}}
-
 \\begin{{center}}
-    {{\\Large \\textbf{{{translations['key_title_1']}}}}}
-    \\par\\vspace{{0.2cm}}
-    {{\\small {translations['legend']}}}
-    \\par\\vspace{{0.5cm}}
-
+    {{\\Large \\textbf{{{translations['key_title_1']}}}}} \\par\\vspace{{0.2cm}}
+    {{\\small {translations['legend']}}} \\par\\vspace{{0.5cm}}
     \\renewcommand{{\\arraystretch}}{{2.8}}
     \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
         \\hline
 {key_table_code}
     \\end{{tabular}}
-    
     \\par\\vspace{{1.2cm}}
-    \\noindent\\centerline{{- - - - - - - - - - - - - - - - - - - - - - - -  {translations['cut_here']}  - - - - - - - - - - - - - - - - - - - - - - - -}}
+    \\noindent\\centerline{{- - - - - - - -  {translations['cut_here']}  - - - - - - - -}}
     \\par\\vspace{{1.2cm}}
-    
-    {{\\Large \\textbf{{{translations['key_title_2']}}}}}
-    \\par\\vspace{{0.2cm}}
-    {{\\small {translations['legend']}}}
-    \\par\\vspace{{0.5cm}}
-
-    \\renewcommand{{\\arraystretch}}{{2.8}}
+    {{\\Large \\textbf{{{translations['key_title_2']}}}}} \\par\\vspace{{0.5cm}}
     \\begin{{tabular}}{{|Z|Z|Z|Z|Z|}}
         \\hline
 {key_table_code}
     \\end{{tabular}}
+    {watermark_tex}
 \\end{{center}}"""
 
-    latex_document = f"""\\documentclass[11pt, a4paper]{{article}}
+    return f"""\\documentclass[11pt, a4paper]{{article}}
 \\usepackage[a4paper]{{geometry}}
-\\usepackage{{tabularx}}
-\\usepackage{{colortbl}}
-\\usepackage{{xcolor}}
-\\usepackage{{graphicx}}
-
-\\usepackage{{fontspec}}
-\\IfFontExistsTF{{Linux Libertine O}}{{
-  \\setmainfont{{Linux Libertine O}}
-}}{{
-  \\IfFontExistsTF{{Liberation Serif}}{{
-    \\setmainfont{{Liberation Serif}}
-  }}{{
-    \\IfFontExistsTF{{Times New Roman}}{{
-      \\setmainfont{{Times New Roman}}
-    }}{{
-    }}
-  }}
-}}
-
+\\usepackage{{tabularx, colortbl, xcolor, graphicx, fontspec}}
 \\usepackage[{babel_lang}]{{babel}}
+
+\\IfFontExistsTF{{Linux Libertine O}}{{\\setmainfont{{Linux Libertine O}}}}{{
+  \\IfFontExistsTF{{Liberation Serif}}{{\\setmainfont{{Liberation Serif}}}}{{\\IfFontExistsTF{{Times New Roman}}{{\\setmainfont{{Times New Roman}}}}{{}}}}
+}}
 
 \\newcolumntype{{Y}}{{>{{\\centering\\arraybackslash}}m{{3.5cm}}}}
 \\newcolumntype{{Z}}{{>{{\\centering\\arraybackslash}}m{{2.0cm}}}}
 
 \\begin{{document}}
 \\pagestyle{{empty}}
-
 \\newgeometry{{landscape, a4paper, margin=0.8cm}}
-
 \\begin{{center}}
-    {{\\Large \\textbf{{{translations['title']}}}}}
-    \\par\\vspace{{0.3cm}}
+    {{\\Large \\textbf{{{translations['title']}}}}} \\par\\vspace{{0.3cm}}
     \\renewcommand{{\\arraystretch}}{{4.2}}
     \\begin{{tabular}}{{|Y|Y|Y|Y|Y|}}
         \\hline
 {grid_rows}    \\end{{tabular}}
-    
     \\vfill
-    
     \\rotatebox{{180}}{{%
         \\begin{{minipage}}{{\\linewidth}}
             \\centering
@@ -245,90 +237,50 @@ def generate_latex(words, translations, babel_lang, layout_type):
             {{\\Large \\textbf{{{translations['title']}}}}}
         \\end{{minipage}}%
     }}
+    {watermark_tex}
 \\end{{center}}
-
 \\newpage
 \\restoregeometry
 {page_2_code}
-
 \\end{{document}}"""
-
-    return latex_document
 
 
 def main():
     bootstrap_languages()
-
-    parser = argparse.ArgumentParser(
-        description="LaTeX board and keycard generator for Codenames.",
-        epilog="Remember to compile the output game.tex file using XeLaTeX.",
-    )
-
+    parser = argparse.ArgumentParser(description="Codenames LaTeX Generator")
+    parser.add_argument("--lang", type=str, default="en", help="Language code.")
+    parser.add_argument("--words", type=str, default=None, help="Path to custom words.")
     parser.add_argument(
-        "--lang",
-        type=str,
-        default="en",
-        help="Language code to use (looks for ./lang/[lang].json). Default is 'en'.",
+        "--lang-list", action="store_true", help="List languages and exit."
     )
-
+    parser.add_argument("--seed", type=str, default=None, help="RNG seed.")
     parser.add_argument(
-        "--words",
-        type=str,
-        default=None,
-        help="Optional path to a custom word file (.txt with one word per line, or a flat JSON array).",
+        "--type", type=int, choices=[1, 2], default=1, help="Layout type."
     )
-
-    parser.add_argument(
-        "--lang-list",
-        action="store_true",
-        help="List all available languages inside the './lang' directory and exit.",
-    )
-
-    parser.add_argument(
-        "--seed",
-        type=str,
-        default=None,
-        help="Optional seed for the random number generator to ensure reproducible card generation.",
-    )
-
-    parser.add_argument(
-        "--type",
-        type=int,
-        choices=[1, 2],
-        default=1,
-        help="Layout type: 1 (Default - Spymaster sheet with direct word annotations in landscape), 2 (Portrait sheet with classic abstract small keycards).",
-    )
-
     args = parser.parse_args()
 
     if args.lang_list:
         list_languages()
         sys.exit(0)
 
-    if args.seed is not None:
+    if args.seed:
         random.seed(args.seed)
-        print(f"RNG seed set to: '{args.seed}'")
+        print(f"Seed set: {args.seed}")
 
     lang_config = load_lang_config(args.lang)
-    translations = lang_config.get("translations", {})
-    babel_lang = lang_config.get("babel_lang", "english")
 
     if args.words:
         words_pool = load_custom_words_file(args.words)
-        print(f"Loaded {len(words_pool)} custom words from: {args.words}")
     else:
         words_pool = lang_config.get("words", [])
-        print(
-            f"Loaded {len(words_pool)} default words for language: '{args.lang}' ({lang_config.get('full_lang_name')})"
-        )
 
-    latex_content = generate_latex(words_pool, translations, babel_lang, args.type)
-    output_filename = "game.tex"
+    latex_content = generate_latex(
+        words_pool, lang_config["translations"], lang_config["babel_lang"], args.type
+    )
 
-    with open(output_filename, "w", encoding="utf-8") as f:
+    with open("game.tex", "w", encoding="utf-8") as f:
         f.write(latex_content)
-
-    print(f"LaTeX template successfully saved as: {output_filename}")
+    print("Success: game.tex generated.")
 
 
 if __name__ == "__main__":
