@@ -3,6 +3,7 @@
 Welcome! This document outlines the standards and design principles for the repository. By following these rules, you help keep the generators clean, reliable, and accessible to everyone.
 
 ## Table of Contents
+
 - [Contributor Guidelines](#contributor-guidelines)
   - [Table of Contents](#table-of-contents)
   - [1. The "Unity" Rule for Generators](#1-the-unity-rule-for-generators)
@@ -23,22 +24,25 @@ Every game generator script must adhere to a strict CLI contract. This consisten
 All game generator scripts must satisfy the following architectural rules:
 
 ### A. Output Filename
-*   The script **must** output its generated LaTeX source file named exactly `game.tex`.
-*   The generated file **must** be compiled using the `xelatex` engine.
+
+- The script **must** output its generated LaTeX source file named exactly `game.tex`.
+- The generated file **must** be compiled using the `xelatex` engine.
 
 ### B. Mandatory Command-Line Arguments
+
 Every script must implement at least the following arguments using `argparse`:
 
-*   `--lang [CODE]`: Specify the language dictionary. 
-    *   *Default*: Must default to `"en"`.
-    *   *Constraint*: The code must match the global registry in [docs/LANGUAGES.md](../LANGUAGES.md).
-*   `--seed [VALUE]`: Initialize the random number generator.
-    *   *Requirement*: Setting a seed must produce a completely deterministic layout.
-*   `--lang-list`: Scan the local `./lang` folder and list available translation files with their full names, then exit immediately.
+- `--lang [CODE]`: Specify the language dictionary.
+  - _Default_: Must default to `"en"`.
+  - _Constraint_: The code must match the global registry in [docs/LANGUAGES.md](../LANGUAGES.md).
+- `--seed [VALUE]`: Initialize the random number generator.
+  - _Requirement_: Setting a seed must produce a completely deterministic layout.
+- `--lang-list`: Scan the local `./lang` folder and list available translation files with their full names, then exit immediately.
 
 ### C. Optional Standard Arguments
-*   `--words [PATH]`: If applicable, allows passing custom word files.
-*   `--type [INT]`: Layout options. Use `1` for the default/standard layout.
+
+- `--words [PATH]`: If applicable, allows passing custom word files.
+- `--type [INT]`: Layout options. Use `1` for the default/standard layout.
 
 ---
 
@@ -62,6 +66,7 @@ games/
 ```
 
 ### Steps to Submit:
+
 1. Create your folder inside `games/`.
 2. Write `gen.py` following the [Unity Rule](#1-the-unity-rule-for-generators).
 3. Populate `lang/en.json` and other translation files.
@@ -85,6 +90,7 @@ To add support for a new language to a game (for example, German `de`):
 ## 4. Updating or Fixing Translations
 
 If you spot a typo or want to improve a game's vocabulary:
+
 1. Locate the language file inside `games/[game-name]/lang/[code].json`.
 2. Modify the values inside the JSON file. Do not change the JSON keys, as this will break the parser in `gen.py`.
 3. Test your changes locally by running the generator and compiling the resulting PDF:
@@ -94,4 +100,5 @@ If you spot a typo or want to improve a game's vocabulary:
    ```
 
 ---
+
 [← Back to Main Contributor Page](../../CONTRIBUTING.md) | [← Back to Repository Root](../../README.md)

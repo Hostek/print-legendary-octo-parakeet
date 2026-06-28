@@ -7,6 +7,7 @@ Python is a versatile and beginner-friendly programming language. Below you will
 ## 1. Installing Python
 
 ### Windows
+
 1. Visit the official website: [python.org/downloads](https://www.python.org/downloads/).
 2. Click the yellow button marked **Download Python [version]**.
 3. Run the downloaded `.exe` installer.
@@ -14,15 +15,18 @@ Python is a versatile and beginner-friendly programming language. Below you will
 5. Click **Install Now** and wait for the process to complete.
 
 ### macOS
+
 1. The easiest method is to use the official installer from [python.org/downloads](https://www.python.org/downloads/).
 2. Download the installer package for macOS (`.pkg`) and follow the on-screen steps.
-3. *Alternative via Homebrew:* If you use a terminal and have Homebrew installed, run:
+3. _Alternative via Homebrew:_ If you use a terminal and have Homebrew installed, run:
    ```bash
    brew install python
    ```
 
 ### Linux (Ubuntu/Debian)
+
 Python is typically pre-installed on most Linux distributions. To ensure you have the required packages, open your terminal and run:
+
 ```bash
 sudo apt update
 sudo apt install python3 python3-pip
@@ -35,6 +39,7 @@ sudo apt install python3 python3-pip
 Let's write and run a simple "Hello World" program to verify the installation.
 
 ### Step 1: Create the script file
+
 1. Open a plain text editor (e.g., Notepad on Windows, TextEdit on macOS, or Gedit on Linux).
 2. Enter the following line of code:
    ```python
@@ -45,6 +50,7 @@ Let's write and run a simple "Hello World" program to verify the installation.
 ### Step 2: Execute the script
 
 #### Windows (Command Prompt or PowerShell)
+
 1. Open the Start menu, type `cmd`, and open the **Command Prompt**.
 2. Navigate to the folder where you saved the file. For example:
    ```cmd
@@ -57,6 +63,7 @@ Let's write and run a simple "Hello World" program to verify the installation.
 4. You should see `Hello from Python!` printed in the console.
 
 #### macOS & Linux (Terminal)
+
 1. Open the **Terminal**.
 2. Navigate to the folder containing your script:
    ```bash
@@ -68,4 +75,5 @@ Let's write and run a simple "Hello World" program to verify the installation.
    ```
 
 ---
+
 [← Back to Beginner's Guide](README.md)

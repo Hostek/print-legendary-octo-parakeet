@@ -3,6 +3,7 @@
 Witaj! Ten dokument opisuje standardy i zasady projektowania obowiązujące w naszym repozytorium. Przestrzeganie tych reguł pozwala utrzymać generatory w czystości, dba o ich niezawodność i sprawia, że są łatwo dostępne dla każdego.
 
 ## Spis treści
+
 - [Wytyczne dla Współtwórców](#wytyczne-dla-współtwórców)
   - [Spis treści](#spis-treści)
   - [1. Zasada Spójności Generatorów ("Unity")](#1-zasada-spójności-generatorów-unity)
@@ -23,22 +24,25 @@ Każdy skrypt generujący grę musi przestrzegać ścisłej umowy dotyczącej pa
 Wszystkie skrypty generujące muszą spełniać następujące zasady architektoniczne:
 
 ### A. Nazwa pliku wyjściowego
-*   Skrypt **musi** zapisywać wyjściowy plik źródłowy LaTeX pod identyczną nazwą: `game.tex`.
-*   Wygenerowany plik **musi** być przystosowany do kompilacji przy użyciu silnika `xelatex`.
+
+- Skrypt **musi** zapisywać wyjściowy plik źródłowy LaTeX pod identyczną nazwą: `game.tex`.
+- Wygenerowany plik **musi** być przystosowany do kompilacji przy użyciu silnika `xelatex`.
 
 ### B. Obowiązkowe argumenty linii komend
+
 Każdy skrypt musi obsługiwać przynajmniej poniższe argumenty za pomocą biblioteki `argparse`:
 
-*   `--lang [KOD]`: Określa słownik językowy.
-    *   *Domyślnie*: Parametr ten musi przyjmować wartość `"en"`.
-    *   *Ograniczenie*: Kod języka musi być zgodny z globalnym rejestrem w pliku [docs/LANGUAGES.md](../LANGUAGES.md).
-*   `--seed [WARTOSC]`: Inicjuje generator liczb pseudolosowych.
-    *   *Wymóg*: Użycie tego samego seedu musi zawsze owocować całkowicie identycznym, deterministycznym układem planszy.
-*   `--lang-list`: Skanuje lokalny katalog `./lang`, wyświetla listę dostępnych języków wraz z ich pełnymi nazwami i natychmiast kończy działanie programu.
+- `--lang [KOD]`: Określa słownik językowy.
+  - _Domyślnie_: Parametr ten musi przyjmować wartość `"en"`.
+  - _Ograniczenie_: Kod języka musi być zgodny z globalnym rejestrem w pliku [docs/LANGUAGES.md](../LANGUAGES.md).
+- `--seed [WARTOSC]`: Inicjuje generator liczb pseudolosowych.
+  - _Wymóg_: Użycie tego samego seedu musi zawsze owocować całkowicie identycznym, deterministycznym układem planszy.
+- `--lang-list`: Skanuje lokalny katalog `./lang`, wyświetla listę dostępnych języków wraz z ich pełnymi nazwami i natychmiast kończy działanie programu.
 
 ### C. Opcjonalne argumenty standardowe
-*   `--words [SCIEZKA]`: Jeśli dotyczy danej gry, pozwala na przekazanie własnej listy słów.
-*   `--type [INT]`: Opcje układu graficznego. Wartość `1` powinna być zawsze domyślnym/standardowym layoutem.
+
+- `--words [SCIEZKA]`: Jeśli dotyczy danej gry, pozwala na przekazanie własnej listy słów.
+- `--type [INT]`: Opcje układu graficznego. Wartość `1` powinna być zawsze domyślnym/standardowym layoutem.
 
 ---
 
@@ -62,6 +66,7 @@ games/
 ```
 
 ### Kroki do zgłoszenia zmian (Pull Request):
+
 1. Utwórz folder gry wewnątrz katalogu `games/`.
 2. Napisz skrypt `gen.py` według [Zasady Spójności](#1-zasada-spójności-generatorów-unity).
 3. Dodaj plik językowy `lang/en.json` oraz inne wymagane słowniki.
@@ -85,6 +90,7 @@ Aby dodać obsługę nowego języka do danej gry (na przykład niemieckiego `de`
 ## 4. Aktualizacja i Poprawianie Tłumaczeń
 
 Jeśli zauważysz literówkę lub chcesz rozbudować słownictwo danej gry:
+
 1. Znajdź odpowiedni plik językowy w `games/[nazwa-gry]/lang/[kod].json`.
 2. Zmodyfikuj wartości w pliku JSON. Nie zmieniaj samych kluczy, ponieważ spowoduje to błędy odczytu w skrypcie `gen.py`.
 3. Przetestuj swoje zmiany lokalnie, generując i kompilując plik PDF:
@@ -94,4 +100,5 @@ Jeśli zauważysz literówkę lub chcesz rozbudować słownictwo danej gry:
    ```
 
 ---
+
 [← Powrót do głównej strony współtwórców](../../CONTRIBUTING.md) | [← Powrót do głównego pliku README](../../../README.md)
