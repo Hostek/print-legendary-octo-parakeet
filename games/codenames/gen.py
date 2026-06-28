@@ -10,6 +10,7 @@ FALLBACK_DOMAIN = "github.com/Hostek/print-legendary-octo-parakeet"
 
 
 def get_project_domain():
+    """Reads the domain from the root config file or returns fallback."""
     possible_paths = ["../../PROJECT_CONFIG.json", "./PROJECT_CONFIG.json"]
     for path in possible_paths:
         if os.path.exists(path):
@@ -22,6 +23,7 @@ def get_project_domain():
 
 
 def bootstrap_folders():
+    """Initializes folder structure."""
     if not os.path.exists(LANG_DIR):
         os.makedirs(LANG_DIR)
     if not os.path.exists(THEMES_DIR):
@@ -29,26 +31,44 @@ def bootstrap_folders():
 
 
 def list_languages():
+    """Scans ./lang/ folder and outputs all available languages."""
     bootstrap_folders()
     files = [f for f in os.listdir(LANG_DIR) if f.endswith(".json")]
     if not files:
-        print("No languages found.")
+        print("No language configurations found.")
         return
-    print("Available languages:")
+    print("Available languages in ./lang/:")
     for filename in sorted(files):
         lang_code = os.path.splitext(filename)[0]
         try:
             with open(os.path.join(LANG_DIR, filename), "r", encoding="utf-8") as f:
                 data = json.load(f)
-                print(f"  - {lang_code:6}: {data.get('full_lang_name')}")
+                print(f"  - {lang_code:6}: {data.get('full_lang_name', 'Unknown')}")
         except:
-            pass
+            print(f"  - {lang_code:6}: [Error reading file]")
+
+
+def list_themes(lang_code):
+    """Scans ./themes/[lang]/ folder and outputs available themes."""
+    path = os.path.join(THEMES_DIR, lang_code)
+    if not os.path.exists(path):
+        print(f"No themes found for language: {lang_code}")
+        return
+    files = [f for f in os.listdir(path) if f.endswith(".txt")]
+    if not files:
+        print(f"No theme files (.txt) found in {path}")
+        return
+    print(f"Available themes for '{lang_code}':")
+    for filename in sorted(files):
+        theme_name = os.path.splitext(filename)[0]
+        print(f"  - {theme_name}")
 
 
 def load_lang_config(lang_code):
+    """Loads JSON file and injects the project domain."""
     filepath = os.path.join(LANG_DIR, f"{lang_code}.json")
     if not os.path.exists(filepath):
-        print(f"Error: Language '{lang_code}' not found.")
+        print(f"Error: Language file '{filepath}' not found.")
         sys.exit(1)
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -61,6 +81,7 @@ def load_lang_config(lang_code):
 
 
 def load_words(filepath):
+    """Loads words from text or JSON."""
     if not os.path.exists(filepath):
         print(f"Error: File '{filepath}' not found.")
         sys.exit(1)
@@ -80,7 +101,7 @@ def generate_latex(words, translations, babel_lang, layout_type):
     selected_words = random.sample(words, 25)
     key_roles = (["A"] * 9) + (["B"] * 8) + ["N"] * 7 + ["X"]
     random.shuffle(key_roles)
-    watermark_tex = rf"\vfill \centering \color{{gray}}{{\tiny {translations.get('watermark', '')}}}"
+    watermark_tex = rf"\vfill \centering \textcolor{{gray}}{{\tiny {translations.get('watermark', '')}}}"
 
     grid_rows = ""
     for i in range(5):
@@ -114,7 +135,7 @@ def generate_latex(words, translations, babel_lang, layout_type):
                     color = "black"
                     text_color = "white"
                 cells.append(
-                    rf"\cellcolor{{{color}}}\color{{{text_color}}}{{\small {label} \par \textbf{{\Large {w}}}}}"
+                    rf"\cellcolor{{{color}}}\textcolor{{{text_color}}}{{\small {label} \par \textbf{{\Large {w}}}}}"
                 )
             spymaster_rows += "        " + " & ".join(cells) + r" \\ \hline" + "\n"
 
@@ -132,12 +153,12 @@ def generate_latex(words, translations, babel_lang, layout_type):
 
         def fmt(r):
             if r == "A":
-                return r"\cellcolor{black!60}\color{white}{\textbf{A}}"
+                return r"\cellcolor{black!60}\textcolor{white}{\textbf{A}}"
             if r == "B":
-                return r"\cellcolor{black!20}\color{black}{\textbf{B}}"
+                return r"\cellcolor{black!20}\textcolor{black}{\textbf{B}}"
             if r == "N":
-                return r"\cellcolor{white}\color{black}{\textbf{--}}"
-            return r"\cellcolor{black}\color{white}{\textbf{X}}"
+                return r"\cellcolor{white}\textcolor{black}{\textbf{--}}"
+            return r"\cellcolor{black}\textcolor{white}{\textbf{X}}"
 
         k_rows = [
             " & ".join([fmt(r) for r in key_roles[i * 5 : (i + 1) * 5]]) + r" \\ \hline"
@@ -176,18 +197,38 @@ def generate_latex(words, translations, babel_lang, layout_type):
 
 def main():
     bootstrap_folders()
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--lang", type=str, default="en")
-    parser.add_argument("--words", type=str, default=None)
-    parser.add_argument("--theme", type=str, default=None)
-    parser.add_argument("--lang-list", action="store_true")
-    parser.add_argument("--seed", type=str, default=None)
-    parser.add_argument("--type", type=int, choices=[1, 2], default=1)
+    parser = argparse.ArgumentParser(description="Codenames LaTeX Generator")
+    parser.add_argument(
+        "--lang", type=str, default="en", help="Language code (e.g., en, pl)."
+    )
+    parser.add_argument(
+        "--words", type=str, default=None, help="Path to custom words file."
+    )
+    parser.add_argument(
+        "--theme", type=str, default=None, help="Name of a built-in theme."
+    )
+    parser.add_argument(
+        "--lang-list", action="store_true", help="List available languages."
+    )
+    parser.add_argument(
+        "--theme-list",
+        action="store_true",
+        help="List themes for the current language.",
+    )
+    parser.add_argument("--seed", type=str, default=None, help="RNG seed.")
+    parser.add_argument(
+        "--type", type=int, choices=[1, 2], default=1, help="Layout type."
+    )
     args = parser.parse_args()
 
     if args.lang_list:
         list_languages()
-        return
+        sys.exit(0)
+
+    if args.theme_list:
+        list_themes(args.lang)
+        sys.exit(0)
+
     if args.seed:
         random.seed(args.seed)
 
@@ -195,11 +236,13 @@ def main():
 
     if args.theme:
         word_file = f"./themes/{args.lang}/{args.theme}.txt"
-        print(f"Loading theme: {args.theme} ({args.lang})")
+        print(f"Using theme: {args.theme} ({args.lang})")
         words_pool = load_words(word_file)
     elif args.words:
+        print(f"Using custom words: {args.words}")
         words_pool = load_words(args.words)
     else:
+        print(f"Using default vocabulary for: {args.lang}")
         words_pool = config.get("words", [])
 
     latex = generate_latex(
