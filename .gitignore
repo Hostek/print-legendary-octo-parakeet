@@ -71,6 +71,9 @@ acs-*.bib
 *.snm
 *.vrb
 
+# xx.sh
+xx.sh
+
 # changes
 *.soc
 *.loc
