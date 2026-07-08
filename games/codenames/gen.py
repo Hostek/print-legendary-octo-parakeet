@@ -101,7 +101,7 @@ def generate_latex(words, translations, babel_lang, layout_type):
     selected_words = random.sample(words, 25)
     key_roles = (["A"] * 9) + (["B"] * 8) + ["N"] * 7 + ["X"]
     random.shuffle(key_roles)
-    watermark_tex = rf"\vfill \centering \textcolor{{gray}}{{\tiny {translations.get('watermark', '')}}}"
+    watermark_tex = rf"\vfill \centering \color{{gray}}{{\tiny {translations.get('watermark', '')}}}"
 
     grid_rows = ""
     for i in range(5):
@@ -135,7 +135,7 @@ def generate_latex(words, translations, babel_lang, layout_type):
                     color = "black"
                     text_color = "white"
                 cells.append(
-                    rf"\cellcolor{{{color}}}\textcolor{{{text_color}}}{{\small {label} \par \textbf{{\Large {w}}}}}"
+                    rf"\cellcolor{{{color}}}\color{{{text_color}}}{{\small {label} \par \textbf{{\Large {w}}}}}"
                 )
             spymaster_rows += "        " + " & ".join(cells) + r" \\ \hline" + "\n"
 
@@ -153,12 +153,12 @@ def generate_latex(words, translations, babel_lang, layout_type):
 
         def fmt(r):
             if r == "A":
-                return r"\cellcolor{black!60}\textcolor{white}{\textbf{A}}"
+                return r"\cellcolor{black!60}\color{white}{\textbf{A}}"
             if r == "B":
-                return r"\cellcolor{black!20}\textcolor{black}{\textbf{B}}"
+                return r"\cellcolor{black!20}\color{black}{\textbf{B}}"
             if r == "N":
-                return r"\cellcolor{white}\textcolor{black}{\textbf{--}}"
-            return r"\cellcolor{black}\textcolor{white}{\textbf{X}}"
+                return r"\cellcolor{white}\color{black}{\textbf{--}}"
+            return r"\cellcolor{black}\color{white}{\textbf{X}}"
 
         k_rows = [
             " & ".join([fmt(r) for r in key_roles[i * 5 : (i + 1) * 5]]) + r" \\ \hline"
