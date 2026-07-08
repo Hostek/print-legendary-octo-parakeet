@@ -39,5 +39,5 @@ Herbata
 Kawa
 Sok
 Woda
-Piwo
-Wino
+Kakao
+Kompot
